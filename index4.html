@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/blackbird.js"></script>
+<script type="text/javascript" src="js/md5.js"></script>
+<script type="text/javascript" src="db/server_db_world.js"></script>
+<script type="text/javascript" src="js/server_world.js"></script>
+<script type="text/javascript" src="js/server_accounts.js"></script>
+<script type="text/javascript" src="js/server_characters.js"></script>
+<script type="text/javascript" src="js/client_model.js"></script>
+<script type="text/javascript" src="js/client_views.js"></script>
+<script type="text/javascript" src="js/client_controller_accounts.js"></script>
+<script type="text/javascript" src="js/client_controller_events.js"></script>
+<script type="text/javascript" src="js/client_controller_char.js"></script>
+<link type="text/css" rel="Stylesheet" href="css/blackbird.css" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.7.2.custom.css" />
+<link rel="stylesheet" type="text/css" href="css/client.css" />
+</head>
+
+<body>
+
+<div id="window_login" style="width:600px; left:30px; top:30px; position:absolute;">
+<fieldset>
+<legend>Обычные аккаунты</legend>
+<p>E-mail: <INPUT TYPE="TEXT" SIZE="30" id="email" /> <INPUT TYPE="SUBMIT" VALUE="Восстановить пароль для данного e-mail" onclick="ActionRetrievePass()"></p>
+<p>Пароль: <INPUT TYPE="TEXT" SIZE="30" id="password" /> <INPUT TYPE="CHECKBOX" id="savepassbox">Запомнить пароль
+<INPUT TYPE="SUBMIT" VALUE="Логин" onclick="ActionLogin()"></p>
+</fieldset>
+<fieldset>
+<legend>Кука auth_data</legend>
+<p>Логин: <span id="acc_cookie_login"></span></p>
+<p>Хэш пароля: <span id="acc_cookie_pass"></span></p>
+<INPUT TYPE="SUBMIT" VALUE="Удалить пароль из куки" onclick="ActionDeleteAuthCookiePassword()">
+<INPUT TYPE="SUBMIT" VALUE="Логин кукой auth_data" onclick="ActionLoginAuthCookie()">
+</fieldset>
+
+<fieldset>
+<legend>Временные (анонимные) аккаунты</legend>
+<p><INPUT TYPE="SUBMIT" VALUE="Новый временный аккаунт" onclick="ActionCreateTempAcc()">
+<INPUT TYPE="SUBMIT" VALUE="Конвертировать в постоянный" onclick="ActionConvertTempAcc()"></p>
+</fieldset>
+
+<fieldset>
+<legend>Операции с обычными аккаунтами</legend>
+<p>Код активации: <INPUT TYPE="TEXT" SIZE="30" id="acc_act_code" /> <INPUT TYPE="SUBMIT" VALUE="Активировать" onclick="ActionActivate()"></p>
+<p>Код однократного входа: <INPUT TYPE="TEXT" SIZE="30" id="acc_onetime_code" /> <INPUT TYPE="SUBMIT" VALUE="Войти однократно" onclick="ActionOnetimeLogin()">
+</fieldset>
+<fieldset>
+<legend>Напоминания</legend>
+<p>F2 - вызов консоли, Shift+F2 - перемещение консоли, очищение и увеличение окна - кнопками в самой консоли</p>
+<p>Все клиентские проверки корректности входных данных отключены, для тестирования серверных проверок</p>
+</fieldset>
+</div>
+
+<div id="window_acc" style="visibility: hidden; width: 800px;top:30px;left:30px;position:absolute;">
+<div style="float:left;">
+<fieldset>
+   <legend>Параметры аккаунта</legend>
+     <table>
+	<tr><td>ID</td><td><span id="acc_login"></span></td></tr>
+	<tr><td>Статус</td><td><span id="acc_status"></span></td></tr>
+     </table>
+    <button id="acc_logoff" onclick="ActionLogoff()">Вернуться к экрану логина</button> 
+<!--
+<fieldset>
+   <legend>Создать нового персонажа</legend>
+     <table>
+	<tr><td>Имя</td><td><INPUT TYPE="TEXT" SIZE="30" id="acc_new_name" /></td></tr>
+    <tr><td>Пол</td><td><input type="radio" name="acc_new_sex" value="M">M<input type="radio" name="acc_new_sex" value="F" checked>F</td></tr>
+     </table>
+	<button id="acc_new_char" onclick="ActionCreateNewChar()">Создать нового персонажа</button>
+</fieldset>
+-->
+</fieldset>
+</div>
+
+<div>
+<span id="char_list"></span>
+</div>
+</div>
+
+<div id="window_char" style="visibility: hidden; top:30px;left:30px;position:absolute;">
+<div style="float:left" id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Основное окно</a></li>
+		<li><a href="#tabs-2">События</a></li>
+		<li><a href="#tabs-3">Инвентарь</a></li>
+		<li><a href="#tabs-4">Квесты</a></li>
+		<li><a href="#tabs-5">Библиотека предметов</a></li>
+		<li><a href="#tabs-6">Библиотека квестов</a></li>
+		<li><a href="#tabs-7">Библиотека монстров</a></li>
+	</ul>
+<div id="tabs-2">
+<div style="float:left" id="itabs">
+	<ul>
+		<li><a href="#itabs-1">Приключения персонажа</a></li>
+		<li><a href="#itabs-2">История зоны</a></li>
+	</ul>
+<div id="itabs-1">
+<TEXTAREA ROWS="20" COLS="100" id="char_adventures"></TEXTAREA>
+</div>
+<div id="itabs-2">
+<TEXTAREA ROWS="20" COLS="100" id="char_zone_history"></TEXTAREA>
+</div>
+</div>
+</div>
+
+<div id="tabs-1">
+<div style="float: left">
+<fieldset>
+   <legend>База</legend>
+    <table>
+	<tr><td>ID</td><td><span id="char_id"></span></td></tr>
+	<tr><td>Имя</td><td><span id="char_name"></span></td></tr>
+	<tr><td>Пол</td><td><span id="char_sex"></span></td></tr>
+	 </table>
+</fieldset>
+<fieldset>
+   <legend>Сменить имя и пол</legend>
+     <table>
+	<tr><td>Имя</td><td><INPUT TYPE="TEXT" SIZE="30" id="char_change_name" /></td></tr>
+    <tr><td>Пол</td><td><input type="radio" name="char_change_sex" value="M">M<input type="radio" name="char_change_sex" value="F" checked>F</td></tr>
+     </table>
+	<button id="char_change_namesex" onclick="ActionChangeName()">Сменить имя и пол</button>
+</fieldset>
+<fieldset>
+   <legend>Статус</legend>
+    <table>
+	<tr><td>Зона</td><td><span id="char_zone"></span></td></tr>
+	<tr><td>Точка</td><td><span id="char_ap"></span></td></tr>
+	<tr><td>Статус</td><td><span id="char_status"></span></td></tr>
+	<tr><td>Время в пути</td><td><span id="char_travel"></span></td></tr>
+	<tr><td>Зона назначения</td><td><span id="char_dest"></span></td></tr>
+	<tr><td>Время отдыха</td><td><span id="char_rest"></span></td></tr>
+    </table>
+</fieldset>
+<fieldset>
+   <legend>Путешествие</legend>
+   <INPUT TYPE="TEXT" SIZE="2" id="char_new_zone" value="1">
+   <button id="char_travel" onclick="ActionTravelRequest()">Путешествовать в эту зону</button>
+</fieldset>
+
+</div>
+<div style="float: left">
+<fieldset>
+   <legend>РПГ</legend>
+     <table>
+	<tr><td>Здоровье</td><td><span id="char_hp"></span> / <span id="char_hp_max_base"></span> + <span id="char_hp_max_equip"></span> + <span id="char_hp_max_temp"></span></td></tr>
+	<tr><td>Энергия</td><td><span id="char_en"></span> / <span id="char_en_max_base"></span> + <span id="char_en_max_equip"></span> + <span id="char_en_max_temp"></span></td></tr>
+	<tr><td>Уровень</td><td><span id="char_level"></span></td></tr>
+	<tr><td>Опыт</td><td><span id="char_xp"></span> / <span id="char_xp_level"></span></td></tr>
+	<tr><td>Сила</td><td><span id="char_str_base"></span> / <span id="char_str_equip"></span> / <span id="char_str_temp"></span></td></tr>
+	<tr><td>Выносливость</td><td><span id="char_end_base"></span> / <span id="char_end_equip"></span> / <span id="char_end_temp"></span></td></tr>
+	<tr><td>Ловкость</td><td><span id="char_agi_base"></span> / <span id="char_agi_equip"></span> / <span id="char_agi_temp"></span></td></tr>
+	<tr><td>Мудрость</td><td><span id="char_wis_base"></span> / <span id="char_wis_equip"></span> / <span id="char_wis_temp"></span></td></tr>
+	<tr><td>Атака</td><td><span id="char_att_base"></span> / <span id="char_att_equip"></span> / <span id="char_att_temp"></span></td></tr>
+	<tr><td>Защита</td><td><span id="char_def_base"></span> / <span id="char_def_equip"></span> / <span id="char_def_temp"></span></td></tr>
+	<tr><td>Хит</td><td><span id="char_hit_base"></span> / <span id="char_hit_equip"></span> / <span id="char_hit_temp"></span></td></tr>
+	<tr><td>Крит</td><td><span id="char_cri_base"></span> / <span id="char_cri_equip"></span> / <span id="char_cri_temp"></span></td></tr>
+	<tr><td>Уворот</td><td><span id="char_dod_base"></span> / <span id="char_dod_equip"></span> / <span id="char_dod_temp"></span></td></tr>
+	<tr><td>Блок</td><td><span id="char_blo_base"></span> / <span id="char_blo_equip"></span> / <span id="char_blo_temp"></span></td></tr>
+    </table>
+    <button id="char_checkrest" onclick="ActionCheckCityRest()">Уточнить энергию в городе</button>
+</fieldset>
+<fieldset>
+   <legend>Полное обновление</legend>
+   <button id="char_reloadall" onclick="ActionReloadAll()">Полное обновление всей информации</button>
+</fieldset>
+</div>
+
+<div style="float: left">
+<fieldset>
+   <legend>Аккаунт</legend>
+   <button id="char_logoff" onclick="ActionCharLogoff()">Вернуться к выбору персонажа</button>
+</fieldset>
+
+<fieldset>
+   <legend>Текущий квест</legend>
+    <table>
+	<tr><td>ID</td><td><span id="char_current_quest_id"></span></td></tr>
+	<tr><td>Goal</td><td><span id="char_current_quest_goal"></span></td></tr>
+    </table>
+   <button id="char_get_adv" onclick="ActionCharGetAdventures()">Получить приключения персонажа</button>
+</fieldset>
+
+<fieldset>
+   <legend>Репутации</legend>
+     <table id="char_reputations">
+	 </table>
+</fieldset>
+<fieldset>
+   <legend>Действия в городе</legend>
+   <button id="char_resurrect" onclick="ActionResurrect()">Воскресить из мертвых</button><br>
+</fieldset>
+</div>
+
+</div>
+
+<div id="tabs-6">
+<fieldset>
+   <legend>Библиотека квестов</legend>
+   ID: <INPUT TYPE="TEXT" SIZE="10" id="char_getquest_id" value="1">
+   <button id="char_questlib_get" onclick="ActionGetQuestTemplate()">Получить с сервера шаблон квеста по ID</button>
+   <button id="char_quest_get" onclick="ActionGetQuest()">Взять квест для персонажа</button>
+     <table id="char_quests_lib">
+	 </table>
+</fieldset>
+</div>
+
+<div id="tabs-7">
+<fieldset>
+   <legend>Библиотека монстров</legend>
+   ID: <INPUT TYPE="TEXT" SIZE="10" id="char_getmob_id" value="1">
+   <button id="char_questlib_get" onclick="ActionGetMobTemplate()">Получить с сервера шаблон монстра по ID</button>
+     <table id="char_mobs_lib">
+	 </table>
+</fieldset>
+</div>
+
+
+<div id="tabs-3">
+<fieldset>
+   <legend>Инвентарь</legend>
+   <p>Деньги: <span id="char_inv_money"></span></p>
+   <table id="char_inv">
+   </table>
+</fieldset>
+</div>
+
+<div id="tabs-4">
+<fieldset>
+   <legend>Квесты</legend>
+   <table id="char_quests">
+   </table>
+</fieldset>
+</div>
+
+<div id="tabs-5">
+<fieldset>
+   <legend>Библиотека предметов</legend>
+   ID: <INPUT TYPE="TEXT" SIZE="10" id="char_getitem_id" value="1">
+   <button id="char_itemlib_get" onclick="ActionGetItemTemplate()">Получить с сервера шаблон предмета по ID</button>
+   <table id="char_items_lib">
+   </table>
+</fieldset>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>
